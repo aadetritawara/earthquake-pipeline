@@ -4,9 +4,9 @@ terraform {
 
     workspaces {
       project = "Earthquake Pipeline"
-      name = "earthquake-pipeline"
+      name    = "earthquake-pipeline"
     }
-  }  
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
