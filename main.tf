@@ -112,3 +112,125 @@ resource "aws_lambda_permission" "allow_eventbridge" {
   principal     = "events.amazonaws.com"
   source_arn    = aws_cloudwatch_event_rule.every_15_minutes.arn
 }
+
+# IAM role for Databricks to access S3 bucket
+resource "aws_iam_role" "databricks_s3_role" {
+  name = "databricks-s3-access-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          AWS = ["arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL"]
+        }
+        Action = "sts:AssumeRole"
+        Condition = {
+          StringEquals = {
+            "sts:ExternalId" = "0000"
+          }
+        }
+      }
+    ]
+  })
+}
+
+# S3 seismic bucket access policy for Databricks role
+resource "aws_iam_role_policy" "databricks_s3_policy" {
+  name = "databricks-s3-access-policy"
+  role = aws_iam_role.databricks_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket",
+          "s3:GetBucketLocation",
+          "s3:ListBucketMultipartUploads",
+          "s3:ListMultipartUploadParts"
+        ]
+        Resource = [
+          aws_s3_bucket.seismic_raw_data.arn,
+          "${aws_s3_bucket.seismic_raw_data.arn}/*"
+        ]
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["sts:AssumeRole"]
+        Resource = ["arn:aws:iam::${var.aws_account_id}:role/${aws_iam_role.databricks_s3_role.name}"]
+      }
+    ]
+  })
+}
+
+# Policy to allow Databricks to manage S3 event notifications for file arrival triggers
+resource "aws_iam_role_policy" "databricks_file_events_policy" {
+  name = "databricks-file-events-policy"
+  role = aws_iam_role.databricks_s3_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ManagedFileEventsSetupStatement"
+        Effect = "Allow"
+        Action = [
+          "s3:GetBucketNotification",
+          "s3:PutBucketNotification",
+          "sns:ListSubscriptionsByTopic",
+          "sns:GetTopicAttributes",
+          "sns:SetTopicAttributes",
+          "sns:CreateTopic",
+          "sns:TagResource",
+          "sns:Publish",
+          "sns:Subscribe",
+          "sqs:CreateQueue",
+          "sqs:DeleteMessage",
+          "sqs:ReceiveMessage",
+          "sqs:SendMessage",
+          "sqs:GetQueueUrl",
+          "sqs:GetQueueAttributes",
+          "sqs:SetQueueAttributes",
+          "sqs:TagQueue",
+          "sqs:ChangeMessageVisibility",
+          "sqs:PurgeQueue"
+        ]
+        Resource = [
+          aws_s3_bucket.seismic_raw_data.arn,
+          "arn:aws:sqs:*:*:csms-*",
+          "arn:aws:sns:*:*:csms-*"
+        ]
+      },
+      {
+        Sid    = "ManagedFileEventsListStatement"
+        Effect = "Allow"
+        Action = [
+          "sqs:ListQueues",
+          "sqs:ListQueueTags",
+          "sns:ListTopics"
+        ]
+        Resource = [
+          "arn:aws:sqs:*:*:csms-*",
+          "arn:aws:sns:*:*:csms-*"
+        ]
+      },
+      {
+        Sid    = "ManagedFileEventsTeardownStatement"
+        Effect = "Allow"
+        Action = [
+          "sns:Unsubscribe",
+          "sns:DeleteTopic",
+          "sqs:DeleteQueue"
+        ]
+        Resource = [
+          "arn:aws:sqs:*:*:csms-*",
+          "arn:aws:sns:*:*:csms-*"
+        ]
+      }
+    ]
+  })
+}
