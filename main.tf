@@ -118,17 +118,20 @@ resource "aws_iam_role" "databricks_s3_role" {
   name = "databricks-s3-access-role"
 
   assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
+    "Version" : "2012-10-17",
+    "Statement" : [
       {
-        Effect = "Allow"
-        Principal = {
-          AWS = ["arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL"]
-        }
-        Action = "sts:AssumeRole"
-        Condition = {
-          StringEquals = {
-            "sts:ExternalId" = "0000"
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
+            "arn:aws:iam::414351767826:role/unity-catalog-prod-UCMasterRole-14S5ZJVKOTYTL",
+            "arn:aws:iam::${var.aws_account_id}:role/databricks-s3-access-role"
+          ]
+        },
+        "Action" : "sts:AssumeRole",
+        "Condition" : {
+          "StringEquals" : {
+            "sts:ExternalId" : var.storage_credential_external_id
           }
         }
       }
