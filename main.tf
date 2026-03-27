@@ -4,7 +4,7 @@ provider "aws" {
 
 # S3 bucket to store raw seismic data
 resource "aws_s3_bucket" "seismic_raw_data" {
-  bucket = "earthquake-pipeline-project-03-2026" 
+  bucket = "earthquake-pipeline-project-03-2026"
 
   tags = {
     Name        = "Seismic Raw Data"
@@ -50,7 +50,7 @@ resource "aws_iam_policy" "lambda_s3_write_policy" {
     Statement = [{
       Action   = "s3:PutObject"
       Effect   = "Allow"
-      Resource = "${aws_s3_bucket.seismic_raw_data.arn}/*" 
+      Resource = "${aws_s3_bucket.seismic_raw_data.arn}/*"
     }]
   })
 }
@@ -61,31 +61,54 @@ resource "aws_iam_role_policy_attachment" "lambda_s3_attach" {
   policy_arn = aws_iam_policy.lambda_s3_write_policy.arn
 }
 
+# Attach AWS managed policy so Lambda can write print statements to CloudWatch Logs
+resource "aws_iam_role_policy_attachment" "lambda_logs_attach" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 # Compress Python code every time Terraform runs 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "seismic_ingest.py" 
+  source_file = "seismic_ingest.py"
   output_path = "seismic_ingest.zip"
 }
 
 # Lambda Function to fetch seismic data and store in S3
 resource "aws_lambda_function" "seismic_fetcher" {
   function_name = "seismic-data-fetcher"
-  
-  role          = aws_iam_role.lambda_exec_role.arn
-  
+
+  role             = aws_iam_role.lambda_exec_role.arn
   filename         = data.archive_file.lambda_zip.output_path
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  runtime          = "python3.12"
+  handler          = "seismic_ingest.lambda_handler"
+  timeout          = 15
 
-  runtime = "python3.12" 
-
-  handler = "seismic_ingest.lambda_handler" 
-  
-  timeout = 15 
-  
   environment {
     variables = {
       BUCKET_NAME = aws_s3_bucket.seismic_raw_data.bucket
     }
   }
+}
+
+resource "aws_cloudwatch_event_rule" "every_15_minutes" {
+  name                = "trigger-seismic-lambda-15-minutes"
+  description         = "Fires every 15 minutes to trigger the seismic data fetcher"
+  schedule_expression = "rate(15 minutes)"
+}
+
+resource "aws_cloudwatch_event_target" "trigger_lambda" {
+  rule      = aws_cloudwatch_event_rule.every_15_minutes.name
+  target_id = "SeismicLambdaFunction"
+  arn       = aws_lambda_function.seismic_fetcher.arn
+}
+
+# Give event bridge permission to invoke the Lambda function
+resource "aws_lambda_permission" "allow_eventbridge" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.seismic_fetcher.function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = aws_cloudwatch_event_rule.every_15_minutes.arn
 }
