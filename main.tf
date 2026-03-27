@@ -131,7 +131,7 @@ resource "aws_iam_role" "databricks_s3_role" {
         "Action" : "sts:AssumeRole",
         "Condition" : {
           "StringEquals" : {
-            "sts:ExternalId" : var.databricks_account_id
+            "sts:ExternalId" : var.storage_credential_external_id
           }
         }
       }
