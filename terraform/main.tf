@@ -70,8 +70,8 @@ resource "aws_iam_role_policy_attachment" "lambda_logs_attach" {
 # Compress Python code every time Terraform runs 
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "seismic_ingest.py"
-  output_path = "seismic_ingest.zip"
+  source_file = "${path.module}/../src/seismic_ingest.py"
+  output_path = "${path.module}/seismic_ingest.zip"
 }
 
 # Lambda Function to fetch seismic data and store in S3
