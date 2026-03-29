@@ -1,4 +1,4 @@
-from pyspark.sql.functions import col, explode, current_timestamp, input_file_name
+from pyspark.sql.functions import col, explode, current_timestamp
 
 S3_PATH = "s3://earthquake-pipeline-project-03-2026/"
 CHECKPOINT_PATH = "/Volumes/main/default/earthquake_pipeline_storage/checkpoints/bronze"
@@ -18,7 +18,7 @@ BRONZE_TABLE = "main.default.bronze_earthquakes"
             col("feature.properties.*"),
             col("feature.geometry.coordinates").alias("coordinates"),
             current_timestamp().alias("ingested_at"),
-            input_file_name().alias("source_file")
+            col("_metadata.file_path").alias("source_file")
         )
         .writeStream
         .format("delta")
