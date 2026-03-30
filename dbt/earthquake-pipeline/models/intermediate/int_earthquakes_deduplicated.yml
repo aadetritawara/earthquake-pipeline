@@ -1,0 +1,10 @@
+version: 2
+models:
+  - name: int_earthquakes_deduplicated
+    description: An intermediate model that deduplicates earthquake events based on their unique identifiers.
+    columns:
+      - name: earthquake_id
+        description: The unique identifier for each earthquake event.
+        data_tests:
+          - not_null
+          - unique
