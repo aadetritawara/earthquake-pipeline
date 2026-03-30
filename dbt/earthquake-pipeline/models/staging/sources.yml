@@ -94,6 +94,8 @@ sources:
                     expression: "tsunami IN (0, 1) OR tsunami IS NULL"
           - name: type
             description: "The type of seismic event. For earthquakes, this value will be 'earthquake'."
+          - name: types
+            description: "A comma-separated list of product types associated to this event."
           - name: tz
             description: "Timezone offset from UTC in minutes at the event epicenter."
           - name: updated
