@@ -1,0 +1,34 @@
+models: 
+  - name: fct_earthquakes_daily
+    description: A fact table that aggregates earthquake events on a daily basis for analysis.
+    columns:
+      - name: event_date
+        description: The date of the earthquake events.
+        data_tests:
+          - not_null
+      - name: num_earthquakes
+        description: The total number of earthquake events that occurred on the given date.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "num_earthquakes >= 0"
+      - name: avg_magnitude
+        description: The average magnitude of earthquake events that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:         
+                expression: "avg_magnitude >= -1.0 AND avg_magnitude <= 10 OR avg_magnitude IS NULL"
+      - name: max_magnitude
+        description: The maximum magnitude of earthquake events that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "max_magnitude >= -1.0 AND max_magnitude <= 10 OR max_magnitude IS NULL"
+      - name: median_magnitude
+        description: The median magnitude of earthquake events that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "median_magnitude >= -1.0 AND median_magnitude <= 10 OR median_magnitude IS NULL" 
+      
