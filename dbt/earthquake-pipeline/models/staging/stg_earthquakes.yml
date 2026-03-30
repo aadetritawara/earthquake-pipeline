@@ -1,0 +1,70 @@
+models:
+  - name: stg_earthquakes
+    description: A silver layer model that aggregates and cleans earthquake data for analysis.
+    columns:
+      - name: earthquake_id
+        description: The unique identifier for each earthquake event.
+        data_tests:
+          - not_null
+      - name: longitude
+        description: The longitude of the earthquake's epicenter.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "longitude >= -180 AND longitude <= 180"
+      - name: latitude
+        description: The latitude of the earthquake's epicenter.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "latitude >= -90 AND latitude <= 90"
+      - name: depth
+        description: The depth of the earthquake in kilometers.
+        data_tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "depth >= 0"
+      - name: alert_color
+        description: "The alert level of the earthquake event from the PAGER earthquake impact scale, which can be one of the following: green, yellow, orange, red."
+      - name: cdi
+        description: "The maximum reported intensity for the event. Computed by DYFI. While typically reported as a roman numeral, for the purposes of this API, intensity is expected as the decimal equivalent of the roman numeral. Range between 0 and 10."
+      - name: num_felt_reports
+        description: "The number of reports submitted by people who felt the earthquake and reported it to the USGS."
+      - name: magnitude
+        description: "The magnitude of the earthquake."
+      - name: magnitude_algorithm
+        description: "The method or algorithm used to calculate the magnitude of the earthquake event."
+      - name: mmi
+        description: "The maximum estimated instrumental intensity for the event. Computed by ShakeMap. While typically reported as a roman numeral, for the purposes of this API, intensity is expected as the decimal equivalent of the roman numeral. Range between 0 and 10."
+      - name: place
+        description: "Textual description of named geographic region near to the event. This may be a city name, or a Flinn-Engdahl Region name."
+      - name: significance
+        description: "A measure of the significance of the earthquake event, which is a function of the magnitude, the number of stations that reported it, and the azimuthal gap between those stations."
+      - name: review_status
+        description: "Indicates whether the event has been reviewed by a human."
+      - name: tsunami
+        description: "This flag is set to '1' for large events in oceanic regions and '0' otherwise. The existence or value of this flag does not indicate if a tsunami actually did or will exist. If the flag value is '1', the event will include a link to the NOAA Tsunami website for tsunami information."
+      - name: event_url
+        description: "The URL to the USGS event page for the earthquake event."
+      - name: event_time
+        description: "The time of the earthquake event in ISO 8601 format."
+        data_tests:
+            - not_null
+      - name: updated_time
+        description: "The time when the earthquake event was last updated in ISO 8601 format."
+        data_tests:
+            - not_null
+            - dbt_utils.expression_is_true:
+                arguments:
+                  expression: "updated_time >= event_time"
+      - name: ingested_at
+        description: "The timestamp when the earthquake event was ingested into the bronze table."
+        data_tests:
+          - not_null
+      - name: source_file_name
+        description: "The name of the source file in S3 from which the earthquake event was ingested."
+        data_tests:
+          - not_null
