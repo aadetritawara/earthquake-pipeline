@@ -13,6 +13,30 @@ models:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: "num_earthquakes >= 0"
+      - name: shallow_depth_count
+        description: The number of earthquake events with a depth less than 70 km that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "shallow_depth_count >= 0"
+      - name: intermediate_depth_count
+        description: The number of earthquake events with a depth between 70 km and 300 km that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "intermediate_depth_count >= 0"
+      - name: deep_depth_count
+        description: The number of earthquake events with a depth greater than 300 km that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "deep_depth_count >= 0"
+      - name: unknown_depth_count
+        description: The number of earthquake events with an unknown depth that occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "unknown_depth_count >= 0"
       - name: avg_magnitude
         description: The average magnitude of earthquake events that occurred on the given date.
         data_tests:
@@ -31,4 +55,16 @@ models:
           - dbt_utils.expression_is_true:
               arguments:
                 expression: "median_magnitude >= -1.0 AND median_magnitude <= 10 OR median_magnitude IS NULL" 
+      - name: num_unique_locations
+        description: The number of unique locations where earthquake events occurred on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "num_unique_locations >= 0"
+      - name: num_tsunamis_warnings
+        description: The number of earthquake events that triggered tsunami warnings on the given date.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "num_tsunamis_warnings >= 0"
       
