@@ -1,0 +1,17 @@
+name: earthquake-pipeline
+
+profile: earthquake-pipeline
+
+model-paths: ["models"]
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  earthquake-pipeline:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: incremental
+    marts:
+      +materialized: table
