@@ -4,7 +4,7 @@ A serverless ETL pipeline implementing a Medallion Architecture (Bronze/Silver/G
 
 ## Pipeline Architecture Overview
 
-![Data pipeline diagram showing earthquake data flow from bronze source through silver staging to gold layers. Starting with bronze_earthquakes (SRC) connecting to stg_earthquakes (MDL), then int_earthquakes_deduplicated (MDL), branching to fct_earthquakes_daily (MDL) which feeds into two final gold tables: fct_earthquakes_by_region_30d and fct_earthquakes_rolling_7d. All connections shown with directional arrows on dark background.](<Pasted Graphic 8.png>)
+![Data pipeline diagram showing earthquake data flow from bronze source through silver staging to gold layers. Starting with bronze_earthquakes (SRC) connecting to stg_earthquakes (MDL), then int_earthquakes_deduplicated (MDL), branching to fct_earthquakes_daily (MDL) which feeds into two final gold tables: fct_earthquakes_by_region_30d and fct_earthquakes_rolling_7d. All connections shown with directional arrows on dark background.](<pipeline_DAG.png>)
 This project follows the Medallion architecture using dbt to transform raw earthquake data into analytics ready models:
 
 **Bronze (Databricks Unity Catalog Table)**  
