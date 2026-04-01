@@ -1,88 +1,74 @@
 models: 
   - name: fct_earthquakes_daily
-    description: A fact table that aggregates earthquake events on a daily basis for analysis.
+    description: A fact table that aggregates earthquake events on a daily basis.
     columns:
       - name: event_date
         description: The date of the earthquake events.
         data_tests:
           - not_null
+          - unique
       - name: num_earthquakes
         description: The total number of earthquake events that occurred on the given date.
         data_tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "num_earthquakes >= 0"
+          - is_positive
       - name: shallow_depth_count
         description: The number of earthquake events with a depth less than 70 km that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "shallow_depth_count >= 0"
+          - not_null
+          - is_positive
       - name: intermediate_depth_count
         description: The number of earthquake events with a depth between 70 km and 300 km that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "intermediate_depth_count >= 0"
+          - not_null
+          - is_positive
       - name: deep_depth_count
         description: The number of earthquake events with a depth greater than 300 km that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "deep_depth_count >= 0"
+          - not_null
+          - is_positive
       - name: unknown_depth_count
         description: The number of earthquake events with an unknown depth that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "unknown_depth_count >= 0"
+          - not_null
+          - is_positive
       - name: minor_magnitude_count
         description: The number of earthquake events with a magnitude less than 3.0 that occurred
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "minor_magnitude_count >= 0"
+          - not_null
+          - is_positive
       - name: light_magnitude_count
         description: The number of earthquake events with a magnitude between 3.0 and 5.0 that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "light_magnitude_count >= 0"
+          - not_null
+          - is_positive
       - name: moderate_magnitude_count
         description: The number of earthquake events with a magnitude between 5.0 and 7.0 that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "moderate_magnitude_count >= 0"
+          - not_null
+          - is_positive
       - name: major_magnitude_count
         description: The number of earthquake events with a magnitude of 7.0 and above that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "major_magnitude_count >= 0"
+          - not_null
+          - is_positive
       - name: unknown_magnitude_count
         description: The number of earthquake events with an unknown magnitude that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "unknown_magnitude_count >= 0"
+          - not_null
+          - is_positive
       - name: avg_magnitude
         description: The average magnitude of earthquake events that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:         
-                expression: "avg_magnitude >= -1.0 AND avg_magnitude <= 10 OR avg_magnitude IS NULL"
+          - valid_magnitude_range
       - name: max_magnitude
         description: The maximum magnitude of earthquake events that occurred on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "max_magnitude >= -1.0 AND max_magnitude <= 10 OR max_magnitude IS NULL"
+          - valid_magnitude_range
       - name: num_tsunami_warnings
         description: The number of earthquake events that triggered tsunami warnings on the given date.
         data_tests:
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "num_tsunami_warnings >= 0"
+          - not_null
+          - is_positive
+        
       

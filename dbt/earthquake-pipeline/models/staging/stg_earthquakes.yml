@@ -1,6 +1,19 @@
 models:
   - name: stg_earthquakes
     description: A silver layer model that aggregates and cleans earthquake data for analysis.
+    data_tests: 
+      - dbt_utils.expression_is_true:
+          name: updated_time_after_event_time
+          arguments:
+            expression: "updated_time >= event_time"
+      - dbt_utils.expression_is_true:
+          name: latitude_within_valid_range
+          arguments:
+            expression: "latitude >= -90 AND latitude <= 90"
+      - dbt_utils.expression_is_true:
+          name: longitude_within_valid_range
+          arguments:
+            expression: "longitude >= -180 AND longitude <= 180"
     columns:
       - name: earthquake_id
         description: The unique identifier for each earthquake event.
@@ -10,23 +23,15 @@ models:
         description: The longitude of the earthquake's epicenter.
         data_tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "longitude >= -180 AND longitude <= 180"
       - name: latitude
         description: The latitude of the earthquake's epicenter.
         data_tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "latitude >= -90 AND latitude <= 90"
       - name: depth
         description: The depth of the earthquake in kilometers.
         data_tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "depth >= 0"
+          - is_positive
       - name: alert_color
         description: "The alert level of the earthquake event from the PAGER earthquake impact scale, which can be one of the following: green, yellow, orange, red."
       - name: cdi
@@ -57,9 +62,6 @@ models:
         description: "The time when the earthquake event was last updated in ISO 8601 format."
         data_tests:
             - not_null
-            - dbt_utils.expression_is_true:
-                arguments:
-                  expression: "updated_time >= event_time"
       - name: ingested_at
         description: "The timestamp when the earthquake event was ingested into the bronze table."
         data_tests:

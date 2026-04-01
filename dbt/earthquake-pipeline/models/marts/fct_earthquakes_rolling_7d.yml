@@ -6,12 +6,11 @@ models:
         description: The date of the earthquake events.
         data_tests:
           - not_null
+          - unique
       - name: num_earthquakes
         description: The total number of earthquake events that occurred on the given date.
       - name: avg_num_earthquakes_rolling_7d
         description: The 7-day rolling average of the number of earthquakes, including the current day and previous 6 days.
         data_tests:
           - not_null
-          - dbt_utils.expression_is_true:
-              arguments:
-                expression: "avg_num_earthquakes_rolling_7d >= 0"
+          - is_positive
