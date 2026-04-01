@@ -1,0 +1,96 @@
+version: 2
+
+sources:
+  - name: usgs_raw
+    database: main    
+    schema: default   
+    tables:
+      - name: bronze_earthquakes
+        description: "Raw USGS earthquake data ingested from S3 via Autoloader."
+        data_tests:
+          - dbt_utils.expression_is_true:
+              name: tsunami_valid_range
+              arguments:
+                expression: "tsunami IN (0, 1) OR tsunami IS NULL"
+          - dbt_utils.expression_is_true:
+              name: coordinates_valid_length
+              arguments:
+                expression: "ARRAY_LENGTH(coordinates) = 3"
+        columns:
+          - name: id
+            description: "The unique identifier for each earthquake event. This is the current preferred id."
+            data_tests:
+              - not_null
+          - name: alert
+            description: "The alert level of the earthquake event from the PAGER earthquake impact scale, which can be one of the following: green, yellow, orange, red."
+          - name: cdi
+            description: "The maximum reported intensity for the event. Computed by DYFI. While typically reported as a roman numeral, for the purposes of this API, intensity is expected as the decimal equivalent of the roman numeral. Range between 0 and 10."
+          - name: code
+            description: "A unique identifier for the earthquake event."
+          - name: detail
+            description: "URL of the detail feed for the earthquake event."
+          - name: dmin
+            description: "The horizontal distance from the epicenter to the nearest station in degrees. 1 degree ~ 111.2 km. In general, the smaller the number, the more reliable is the calculated depth of the earthquake."
+          - name: felt
+            description: "The number of reports submitted by people who felt the earthquake and reported it to the USGS."
+          - name: gap
+            description: "The largest azimuthal gap between adjacent stations in degrees. In general, the smaller this number, the more reliable is the calculated horizontal position of the earthquake. Earthquake locations in which the azimuthal gap exceeds 180 degrees typically have large location and depth uncertainties."
+          - name: ids
+            description: "A comma-separated list of all the identifiers associated with the earthquake event."
+          - name: mag
+            description: "The magnitude of the earthquake."
+            data_tests:
+              - valid_magnitude_range
+          - name: magType
+            description: "The method or algorithm used to calculate the magnitude of the earthquake event."
+          - name: mmi
+            description: "The maximum estimated instrumental intensity for the event. Computed by ShakeMap. While typically reported as a roman numeral, for the purposes of this API, intensity is expected as the decimal equivalent of the roman numeral. Range between 0 and 10."
+          - name: net
+            description: "The ID of the seismic network that provided the data for the earthquake event."
+          - name: nst
+            description: "The total number of seismic stations used to determine earthquake location."
+          - name: place
+            description: "Textual description of named geographic region near to the event. This may be a city name, or a Flinn-Engdahl Region name."
+          - name: rms
+            description: "The root-mean-square (RMS) travel time residual, in sec, using all weights. This parameter provides a measure of the fit of the observed arrival times to the predicted arrival times for this location. Smaller numbers reflect a better fit of the data. The value is dependent on the accuracy of the velocity model used to compute the earthquake location, the quality weights assigned to the arrival time data, and the procedure used to locate the earthquake."
+          - name: sig
+            description: "A measure of the significance of the earthquake event. Larger numbers indicate more significant events."
+          - name: sources
+            description: "A comma-separated list of all the seismic networks that provided data for the earthquake event."
+          - name: status
+            description: "Indicates whether the event has been reviewed by a human."
+          - name: time
+            description: "The time that the earthquake event occurred in epoch milliseconds."
+          - name: title
+            description: "Title of the feed. For example, 'USGS Magnitude 1+ Earthquakes, Past Day'."
+          - name: tsunami
+            description: "This flag is set to '1' for large events in oceanic regions and '0' otherwise. The existence or value of this flag does not indicate if a tsunami actually did or will exist. If the flag value is '1', the event will include a link to the NOAA Tsunami website for tsunami information."
+          - name: type
+            description: "The type of seismic event. For earthquakes, this value will be 'earthquake'."
+          - name: types
+            description: "A comma-separated list of product types associated to this event."
+          - name: tz
+            description: "Timezone offset from UTC in minutes at the event epicenter."
+          - name: updated
+            description: "The time that the earthquake event was last updated in epoch milliseconds."
+          - name: url
+            description: "Link to the USGS Event Page for event."
+          - name: coordinates
+            description: "The longitude, latitude, and depth of the earthquake event in that order. Depth is in kilometers."
+          - name: ingested_at
+            description: "The timestamp when the earthquake event was ingested into the bronze table."
+            data_tests:
+              - not_null
+          - name: source_file
+            description: "The name of the source file in the S3 bucket from which the earthquake event was ingested."
+            data_tests:
+              - not_null
+        config: 
+          freshness:
+            warn_after: 
+              count: 30
+              period: minute
+            error_after: 
+              count: 60
+              period: minute
+          loaded_at_field: ingested_at

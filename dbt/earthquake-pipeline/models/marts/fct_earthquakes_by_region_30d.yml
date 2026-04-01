@@ -1,0 +1,14 @@
+models: 
+  - name: fct_earthquakes_by_region_30d
+    description: A fact table that aggregates earthquake events by region for the past 30 days.
+    columns:
+      - name: region
+        description: The geographic region where the earthquake event occurred, extracted from the 'place' column in the source data. For American states, this will give us the state name, and for other locations, it will output the country or region name.
+        data_tests:
+          - not_null
+          - unique
+      - name: num_earthquakes
+        description: The total number of earthquake events that occurred in the given region in the last 30 days.
+        data_tests:
+          - not_null
+          - is_positive
