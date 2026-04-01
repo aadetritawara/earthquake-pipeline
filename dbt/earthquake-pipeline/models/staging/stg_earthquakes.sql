@@ -12,7 +12,7 @@ SELECT
     place,
     sig AS significance,
     status AS review_status,
-    tsunami,
+    CAST(tsunami AS INT) AS tsunami,
     url AS event_url,
     timestamp_millis(time) AS event_time,
     timestamp_millis(updated) AS updated_time,
