@@ -15,7 +15,7 @@ sources:
           - dbt_utils.expression_is_true:
               name: coordinates_valid_length
               arguments:
-                expression: "ARRAY_LENGTH(coordinates) = 3"
+                expression: "SIZE(coordinates) = 3"
         columns:
           - name: id
             description: "The unique identifier for each earthquake event. This is the current preferred id."
