@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./dbt/earthquake-pipeline
+        working-directory: ./dbt/earthquake_pipeline
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6

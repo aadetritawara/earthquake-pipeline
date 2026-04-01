@@ -1,6 +1,6 @@
-name: earthquake-pipeline
+name: earthquake_pipeline
 
-profile: earthquake-pipeline
+profile: earthquake_pipeline
 
 model-paths: ["models"]
 clean-targets:
@@ -8,7 +8,7 @@ clean-targets:
   - "dbt_packages"
 
 models:
-  earthquake-pipeline:
+  earthquake_pipeline:
     staging:
       +materialized: view
     intermediate:
