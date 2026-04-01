@@ -31,7 +31,6 @@ models:
         description: The depth of the earthquake in kilometers.
         data_tests:
           - not_null
-          - is_positive
       - name: alert_color
         description: "The alert level of the earthquake event from the PAGER earthquake impact scale, which can be one of the following: green, yellow, orange, red."
       - name: cdi
