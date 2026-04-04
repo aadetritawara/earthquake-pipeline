@@ -2,8 +2,8 @@
 SELECT 
     event_date,
     num_earthquakes,
-    AVG(num_earthquakes) OVER (
+    ROUND(AVG(num_earthquakes) OVER (
         ORDER BY event_date
         ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-    ) AS avg_num_earthquakes_rolling_7d
+    ), 2) AS avg_num_earthquakes_rolling_7d
 FROM {{ ref('fct_earthquakes_daily') }}
