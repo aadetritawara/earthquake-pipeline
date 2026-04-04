@@ -33,7 +33,7 @@ The job is configured to pull the latest code directly from the `main` branch of
 Monitors the S3 landing zone for new JSON files and incrementally ingests them into the bronze Unity Catalog table, processing only new files since the last run
 
 ### dbt Models
-Runs staging, intermediate, and fact table transformations in dependency order. dbt tests run alongside transformations to catch data quality issues before they reach the dashboard. A model is built then tested; in case of data quality test failures, the downstream models are not run and the task is shown as a "failure".
+Runs staging, intermediate, and fact table transformations in dependency order. dbt tests run alongside transformations to catch data quality issues before they reach the dashboard. Each model is built then tested; in case of data quality test failures, the downstream models are not run and the task is shown as a "failure".
 
 ### Dashboard Refresh
 Triggers a refresh of the Databricks dashboard so visualizations reflect the latest data
